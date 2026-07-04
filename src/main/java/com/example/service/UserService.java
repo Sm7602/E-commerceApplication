@@ -34,7 +34,7 @@ public class UserService {
 	                .orElseThrow(() ->
 	                        new RuntimeException("User not found with id: " + id));
 
-	        existingUser.setFirstName(updatedUser.getFirstName());
+	        existingUser.setFirstname(updatedUser.getFirstname());
 	        existingUser.setLastName(updatedUser.getLastName());
 	        existingUser.setEmail(updatedUser.getEmail());
 	        existingUser.setPassword(updatedUser.getPassword());
