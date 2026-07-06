@@ -1,12 +1,10 @@
 package com.example.service;
 
 import java.util.HashMap;
-
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import com.example.dao.UserRepository;
 import com.example.dto.AuthenticationRequest;
 import com.example.dto.AuthenticationResponse;
@@ -14,7 +12,6 @@ import com.example.dto.RegisterRequest;
 import com.example.entity.Role;
 import com.example.entity.User;
 import com.example.security.JwtService;
-
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 
