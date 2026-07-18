@@ -35,6 +35,16 @@ public class Product {
 	    private Integer stockQuantity;
 
 	    private String brand;
+	    
+	    private String sku;
+
+	    private Double discountPercentage;
+
+	    private BigDecimal discountedPrice;
+
+	    private Boolean featured;
+
+	    private Integer totalSold;
 
 	    private String imageUrl;
 

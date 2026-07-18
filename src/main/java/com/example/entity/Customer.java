@@ -58,6 +58,12 @@ public class Customer{
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+    
+    private Integer totalOrders;
+
+    private Integer totalReviews;
+
+    private Integer totalWishlistItems;
 	    
 	    @OneToOne(cascade = CascadeType.ALL)
 	    @JoinColumn(name = "cart_id")

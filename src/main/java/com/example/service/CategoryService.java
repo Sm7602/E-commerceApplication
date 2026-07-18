@@ -1,8 +1,15 @@
 package com.example.service;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.dao.CategoryRepository;
+import com.example.dto.admin.AdminResponse;
+import com.example.dto.admin.AdminUpdateRequest;
+import com.example.dto.category.CategoryRequest;
+import com.example.dto.category.CategoryResponse;
+import com.example.dto.category.CategoryUpdateRequest;
+import com.example.entity.Admin;
 import com.example.entity.Category;
 
 @Service
@@ -11,38 +18,69 @@ public class CategoryService {
 	@Autowired
 	private CategoryRepository categoryRepository;
 
+	private CategoryResponse convertToResponse(Category category) {
+
+        return CategoryResponse.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .description(category.getDescription())
+                .imageUrl(category.getImageUrl())
+                .active(category.getActive())
+                .createdAt(category.getCreatedAt())
+                .updatedAt(category.getUpdatedAt())
+                .totalProducts(category.getTotalProducts())
+                .products(category.getProducts())
+                .build();
+    }
 	
-	    public Category saveCategory(Category category) {
+	    public CategoryResponse saveCategory(CategoryRequest request) {
 	    	System.out.println("CategoryService.saveCategory()");
-	        return categoryRepository.save(category);
+	          Category category=Category.builder()
+	                  .name(request.getName())
+	                  .description(request.getDescription())
+	                  .imageUrl(request.getImageUrl())
+	                  .createdAt(LocalDateTime.now())
+	                  .updatedAt(LocalDateTime.now())
+	                  .active(true)
+	                  .build();
+	          
+	          category=  categoryRepository.save(category);
+	          return convertToResponse(category);
 	    }
 
 	   
-	    public List<Category> getAllCategories() {
+	    public List<CategoryResponse> getAllCategories() {
 	    	System.out.println("CategoryService.getAllCategory()");
-	        return categoryRepository.findAll();
+	        return categoryRepository.findAll()
+	        		    .stream()
+		            .map(this::convertToResponse)
+		            .toList();
 	    }
 
 	    
-	    public Category getCategoryById(Long id) {
+	    public CategoryResponse getCategoryById(Long id) {
 	    	System.out.println("CategoryService.getCategoryById()");
-	        return categoryRepository.findById(id)
+	        Category category= categoryRepository.findById(id)
 	                .orElseThrow(() ->
 	                        new RuntimeException("Category not found"));
+	          category=  categoryRepository.save(category);
+	          return convertToResponse(category);
 	    }
 
 	    
-	    public Category updateCategory(Long id, Category category) {
+	    public CategoryResponse updateCategory(Long id, CategoryUpdateRequest request) {
 	    	System.out.println("CategoryService.updateCategory()");
 	        Category existingCategory = categoryRepository.findById(id)
 	                .orElseThrow(() ->
 	                        new RuntimeException("Category not found"));
 
-	        existingCategory.setName(category.getName());
-	        existingCategory.setDescription(category.getDescription());
-	        existingCategory.setImageUrl(category.getImageUrl());
+	        existingCategory.setName(request.getName());
+	        existingCategory.setDescription(request.getDescription());
+	        existingCategory.setImageUrl(request.getImageUrl());
+	        existingCategory.setUpdatedAt(LocalDateTime.now());
 
-	        return categoryRepository.save(existingCategory);
+	        existingCategory=  categoryRepository.save(existingCategory);
+	          return convertToResponse(existingCategory);
 	    }
 
 	    

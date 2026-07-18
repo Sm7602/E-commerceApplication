@@ -32,7 +32,13 @@ public class Order {
 
 	    private String shippingAddress;
 
-	    private String status;
+	    private String paymentMethod;
+
+	    private String paymentStatus;
+
+	    private String deliveryStatus;
+
+	    private LocalDateTime deliveredAt;
 	    
 	    private LocalDateTime createdAt;
 
