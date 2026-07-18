@@ -10,7 +10,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -68,9 +67,6 @@ public class Product {
 	    @OneToMany(mappedBy = "product")
 	    private List<Wishlist> wishlistItems;
 	    
-	    @OneToOne
-	    @JoinColumn(name="user_id")
-	    private User user;
-	    
+	  
 	    
 }
