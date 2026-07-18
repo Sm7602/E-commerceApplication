@@ -1,4 +1,5 @@
 package com.example.entity;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -25,6 +26,12 @@ public class Category {
 	    private String description;
 
 	    private String imageUrl;
+	    
+	    private LocalDateTime createdAt;
+
+		private LocalDateTime updatedAt;
+
+		private Boolean active;
 	    
 	    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
 	    private List<Product> products;

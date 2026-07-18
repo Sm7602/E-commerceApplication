@@ -1,9 +1,8 @@
 package com.example.entity;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,13 +10,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-//import lombok.AllArgsConstructor;
+import jakarta.persistence.OneToOne;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
-//@AllArgsConstructor
 @Entity
 public class Product {
 	
@@ -39,6 +41,12 @@ public class Product {
 
 	    private Double averageRating;
 	    
+	    private LocalDateTime createdAt;
+
+		private LocalDateTime updatedAt;
+
+		private Boolean active;
+	    
 	    @ManyToOne
 	    @JsonIgnore
 	    @JoinColumn(name = "category_id")
@@ -59,6 +67,10 @@ public class Product {
 	    @JsonIgnore
 	    @OneToMany(mappedBy = "product")
 	    private List<Wishlist> wishlistItems;
+	    
+	    @OneToOne
+	    @JoinColumn(name="user_id")
+	    private User user;
 	    
 	    
 }

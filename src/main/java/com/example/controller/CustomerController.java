@@ -10,56 +10,56 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.entity.User;
-import com.example.service.UserService;
+import com.example.service.CustomerService;
 
 @RestController
 @RequestMapping("/api/users")
-public class UserController {
+public class CustomerController {
 	
 //	@GetMapping("/user")
 //	public User greetings() {
-//		System.out.println("UserController.greetings()");
+//		System.out.println("CustomerController.greetings()");
 //		return new User("souvik","Maity","sm24@gmail.com","dad123","7602567154","http/image.com");
 //	}
 	
 	@Autowired
-	private UserService userService;
+	private CustomerService customerService;
 	
 	@PostMapping()
 	public User requestBodyInfo(@RequestBody User user) {
-		System.out.println(user+"UserController.requestBodyInfo()");
-		userService.saveUser(user);
+		System.out.println(user+"CustomerController.requestBodyInfo()");
+		customerService.saveUser(user);
 		return user;	
 	}
 	
 	@GetMapping()
 	public List<User> getAllUser() {
-		System.out.println("UserController.getAllUser()");
-		return userService.getAllUser();
+		System.out.println("CustomerController.getAllUser()");
+		return customerService.getAllUser();
 	}
 	
 	@GetMapping("/{id}")
 	public User getUserById(@PathVariable long id) {
-		System.out.println("UserController.getUserById() running.......");
-		return userService.getUserById(id);
+		System.out.println("CustomerController.getUserById() running.......");
+		return customerService.getUserById(id);
 	}
 	
 	@PutMapping("/{id}")
 	public User updateUser(@PathVariable Long id,@RequestBody User user) {
-		System.out.println("UserController.updateUser() running.......");
-		return userService.updateUser(id,user);
+		System.out.println("CustomerController.updateUser() running.......");
+		return customerService.updateUser(id,user);
 	}
 	
 	@DeleteMapping("/{id}")
 	public void deleteUserById(@PathVariable long id) {
-		System.out.println("UserController.deleteUserById() running.......");
-		userService.deleteUserById(id);
+		System.out.println("CustomerController.deleteUserById() running.......");
+		customerService.deleteUserById(id);
 	}
 	
 	@DeleteMapping("/deleteAllUsers")
 	public void deleteallUser() {
-		System.out.println("UserController.deleteAllUser() running.......");
-		userService.deleteallUser();
+		System.out.println("CustomerController.deleteAllUser() running.......");
+		customerService.deleteallUser();
 	}
 	
 

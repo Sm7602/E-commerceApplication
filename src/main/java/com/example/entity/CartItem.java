@@ -1,5 +1,6 @@
 package com.example.entity;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -27,14 +28,19 @@ public class CartItem {
 	
 	private int quantity;
 	
+	private LocalDateTime createdAt;
+
+	private LocalDateTime updatedAt;
+
+	private Boolean active;
+	
 	private BigDecimal priceAtAddition;
 	
 	@ManyToOne
 	@JoinColumn(name = "cart_id")
 	@JsonIgnore
 	private Cart cart;
-	
-	
+
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "product_id", nullable = false)

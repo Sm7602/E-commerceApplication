@@ -1,4 +1,6 @@
 package com.example.entity;
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,9 +25,15 @@ public class Review {
 
 	    private String comment;
 	    
+	    private LocalDateTime createdAt;
+
+		private LocalDateTime updatedAt;
+
+		private Boolean active;
+	    
 	    @ManyToOne
-	    @JoinColumn(name = "user_id")
-	    private User user;
+	    @JoinColumn(name = "customer_id")
+	    private Customer customer;
 	    
 	    @ManyToOne
 	    @JoinColumn(name = "product_id")

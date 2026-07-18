@@ -1,5 +1,6 @@
 package com.example.entity;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
@@ -9,15 +10,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-//import lombok.AllArgsConstructor;
+import jakarta.persistence.OneToOne;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "orders")
-//@AllArgsConstructor
 @Entity
 public class Order {
 	
@@ -33,12 +35,22 @@ public class Order {
 
 	    private String status;
 	    
+	    private LocalDateTime createdAt;
+
+		private LocalDateTime updatedAt;
+
+		private Boolean active;
+	    
 	    @ManyToOne
-	    @JoinColumn(name = "user_id")
+	    @JoinColumn(name = "Customer_id")
 	    @JsonIgnore
-	    private User user;
+	    private Customer Customer;
 	    
 	    @OneToMany(mappedBy = "order")
 	    private List<OrderItem> orderItems;
+	    
+	    @OneToOne
+	    @JoinColumn(name="user_id")
+	    private User user;
 
 }

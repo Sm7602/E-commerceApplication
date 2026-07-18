@@ -1,4 +1,4 @@
-package com.example.dto;
+package com.example.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,5 +11,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AuthenticationResponse {
    
-	private String token;
+	    private String token;
+
+	    private String tokenType;
+
+	    private Long userId;
+
+	    private String email;
+
+	    private String role;
+
+	    private String message;
 }

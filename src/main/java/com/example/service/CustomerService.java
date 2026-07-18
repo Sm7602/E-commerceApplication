@@ -6,30 +6,30 @@ import com.example.dao.UserRepository;
 import com.example.entity.User;
 
 @Service
-public class UserService {
+public class CustomerService {
 	
 	@Autowired
 	private UserRepository userRepository;
 	
 	public User saveUser(User user) {
-		System.out.println("UserService.saveUser()");
+		System.out.println("CustomerService.saveUser()");
 		userRepository.save(user);
 		return user;
 	}
 	
 	public List<User> getAllUser() {
-		System.out.println("UserService.getAllUser()");
+		System.out.println("CustomerService.getAllUser()");
 		return userRepository.findAll();
 	}
 	
 	public User getUserById(long id) {
-		System.out.println("UserService.getUserById() running.......");
+		System.out.println("CustomerService.getUserById() running.......");
 		return userRepository.findById(id).orElseThrow(() ->
         new RuntimeException("User not found"));
 	}
 	
 	public User  updateUser(long id,User updatedUser) {
-		System.out.println("UserService.updateuser() running.......");
+		System.out.println("CustomerService.updateuser() running.......");
 		 User existingUser = userRepository.findById(id)
 	                .orElseThrow(() ->
 	                        new RuntimeException("User not found with id: " + id));
@@ -45,7 +45,7 @@ public class UserService {
 	}
 		
 	public void deleteUserById(long id) {
-		System.out.println("UserService.deleteUserById() running.......");
+		System.out.println("CustomerService.deleteUserById() running.......");
 		 User user = userRepository.findById(id)
 	                .orElseThrow(() ->
 	                        new RuntimeException("User not found with id: " + id));
@@ -53,7 +53,7 @@ public class UserService {
 	}
 	
 	public void deleteallUser() {
-		System.out.println("UserService.deleteallUser() running.......");
+		System.out.println("CustomerService.deleteallUser() running.......");
 		userRepository.deleteAll();
 	}
 	
