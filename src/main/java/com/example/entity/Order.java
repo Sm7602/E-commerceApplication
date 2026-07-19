@@ -29,6 +29,8 @@ public class Order {
 	    private String orderNumber;
 
 	    private BigDecimal totalAmount;
+	    
+	    private String status;
 
 	    private String shippingAddress;
 
@@ -49,7 +51,7 @@ public class Order {
 	    @ManyToOne
 	    @JoinColumn(name = "Customer_id")
 	    @JsonIgnore
-	    private Customer Customer;
+	    private Customer customer;
 	    
 	    @OneToMany(mappedBy = "order")
 	    private List<OrderItem> orderItems;

@@ -20,7 +20,7 @@ public class OrderResponse {
 	    private BigDecimal totalAmount;
 
 	    private String shippingAddress;
-
+	    
 	    private String status;
 
 	    private String paymentMethod;
@@ -35,17 +35,17 @@ public class OrderResponse {
 
 	    private LocalDateTime updatedAt;
 
+	    private LocalDateTime deliveredAt;
 
 
 	    private Long customerId;
 
-	    private String customerName;
+	    private String customerFirstName;
+	    
+	    private String customerLastName;
 
 	    private String phoneNumber;
 
-
-
-	    private Integer totalItems;
 
 
 	    private List<OrderItem> orderItems;
