@@ -7,11 +7,14 @@ import org.springframework.stereotype.Service;
 
 import com.example.dao.CustomerRepository;
 import com.example.dao.OrderRepository;
+import com.example.dao.ProductRepository;
 import com.example.dto.order.OrderRequest;
 import com.example.dto.order.OrderResponse;
 import com.example.dto.order.OrderUpdateRequest;
 import com.example.entity.Customer;
 import com.example.entity.Order;
+import com.example.entity.OrderItem;
+import com.example.entity.Product;
 
 
 @Service
@@ -22,6 +25,10 @@ public class OrderService {
 
 	    @Autowired
 	    private CustomerRepository customerRepository;
+	    
+	    @Autowired
+	    private ProductRepository productRepository;
+	    
 	    
 	    private OrderResponse convertToResponse(Order order) {
 
@@ -52,6 +59,7 @@ public class OrderService {
 	                .orElseThrow(() ->
 	                        new RuntimeException("User not found"));
 	        
+	        
 	        Order order =Order.builder()
 	        		    .customer(customer)
 	        		    .orderNumber("ORD-"+System.currentTimeMillis())
@@ -67,6 +75,14 @@ public class OrderService {
 	        	        .build();
 	       
 	        order= orderRepository.save(order);
+	        
+	        for (OrderItem item : order.getOrderItems()) {
+	            Product product = item.getProduct();
+	            product.setTotalSold(
+	                    product.getTotalSold() + item.getQuantity()
+	            );
+	            productRepository.save(product);
+	        }
 	        return convertToResponse(order);
 	    }
 
@@ -92,7 +108,6 @@ public class OrderService {
 	                .orElseThrow(() ->
 	                        new RuntimeException("Order not found"));
 	        order.setDeliveryStatus("CANCELLED");
-	        order.setUpdatedAt(LocalDateTime.now());
 	        order.setUpdatedAt(LocalDateTime.now());
 	        order= orderRepository.save(order);
 	        return convertToResponse(order);

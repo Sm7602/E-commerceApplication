@@ -4,12 +4,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.dao.CategoryRepository;
-import com.example.dto.admin.AdminResponse;
-import com.example.dto.admin.AdminUpdateRequest;
 import com.example.dto.category.CategoryRequest;
 import com.example.dto.category.CategoryResponse;
 import com.example.dto.category.CategoryUpdateRequest;
-import com.example.entity.Admin;
 import com.example.entity.Category;
 
 @Service

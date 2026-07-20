@@ -1,9 +1,15 @@
 package com.example.service;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.dao.CategoryRepository;
 import com.example.dao.ProductRepository;
+import com.example.dto.product.ProductRequest;
+import com.example.dto.product.ProductResponse;
+import com.example.dto.product.ProductUpdateRequest;
 import com.example.entity.Category;
 import com.example.entity.Product;
 
@@ -16,39 +22,101 @@ public class ProductService {
 	    @Autowired
 	    private CategoryRepository categoryRepository;
 
-	    public Product saveProduct(Product product) {
+	    private ProductResponse convertToResponse(Product product) {
+
+	        return ProductResponse.builder()
+	        		    .id(product.getId())
+	        		    .name(product.getName())
+	        		    .description(product.getDescription())
+	        		    .price(product.getPrice())
+	        		    .discountedPrice(product.getDiscountedPrice())
+	        		    .discountPercentage(product.getDiscountPercentage())
+	        		    .stockQuantity(product.getStockQuantity())
+	        		    .brand(product.getBrand())
+	        		    .sku(product.getSku())
+	        		    .featured(product.getFeatured())
+	        		    .totalSold(product.getTotalSold())
+	        		    .imageUrl(product.getImageUrl())
+	        		    .averageRating(product.getAverageRating())
+	                .active(product.getActive())
+	                .createdAt(product.getCreatedAt())
+	                .updatedAt(product.getUpdatedAt())
+	                .category(product.getCategory())
+	                .reviews(product.getReviews())
+	                .build();
+	    }
+	    
+	    public ProductResponse saveProduct(ProductRequest request) {
 	        System.out.println("ProductService.saveProduct()");
-	        return productRepository.save(product);
+	       
+	        Category category = categoryRepository.findById(request.getCategoryId())
+	                .orElseThrow(() ->
+	                        new RuntimeException("User not found"));
+	        
+	         String sku = "PRD-" + UUID.randomUUID()
+            .toString()
+            .substring(0, 8)
+            .toUpperCase();
+	        
+	        Product product=Product.builder()
+	        		.name(request.getName())
+        		    .description(request.getDescription())
+        		    .price(request.getPrice())
+        		    .discountedPrice(BigDecimal.ZERO)
+        		    .discountPercentage(request.getDiscountPercentage())
+        		    .stockQuantity(request.getStockQuantity())
+        		    .brand(request.getBrand())
+        		    .sku(sku)
+        		    .featured(request.getFeatured())
+        		    .totalSold(0)
+        		    .imageUrl(request.getImageUrl())
+        		    .averageRating(0.0)
+                .active(true)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .category(category)
+	        		.build();
+	        
+	        product= productRepository.save(product);
+	        return convertToResponse(product);
 	    }
 
-	    public List<Product> getAllProducts() {
+	    public List<ProductResponse> getAllProducts() {
 	        System.out.println("ProductService.getAllProducts()");
-	        return productRepository.findAll();
+	        return productRepository.findAll()
+	        		                    .stream()
+                                    .map(this::convertToResponse)
+                                    .toList();
 	    }
 
-	    public Product getProductById(Long id) {
+	    public ProductResponse getProductById(Long id) {
 	        System.out.println("ProductService.getProductById()");
-	        return productRepository.findById(id)
+	        Product product= productRepository.findById(id)
 	                .orElseThrow(() ->
 	                        new RuntimeException("Product not found"));
+	        
+	        return convertToResponse(product);
 	    }
 
-	    public Product updateProduct(Long id, Product updatedProduct) {
+	    public ProductResponse updateProduct(Long id, ProductUpdateRequest request) {
 	    	System.out.println("ProductService.updateProduct()");
 	        Product existingProduct = productRepository.findById(id)
 	                .orElseThrow(() ->
 	                        new RuntimeException("Product not found"));
 
-	        existingProduct.setName(updatedProduct.getName());
-	        existingProduct.setDescription(updatedProduct.getDescription());
-	        existingProduct.setPrice(updatedProduct.getPrice());
-	        existingProduct.setStockQuantity(updatedProduct.getStockQuantity());
-	        existingProduct.setBrand(updatedProduct.getBrand());
-	        existingProduct.setImageUrl(updatedProduct.getImageUrl());
-	        existingProduct.setAverageRating(updatedProduct.getAverageRating());
-	        existingProduct.setCategory(updatedProduct.getCategory());
+	        existingProduct.setName(request.getName());
+	        existingProduct.setDescription(request.getDescription());
+	        existingProduct.setPrice(request.getPrice());
+	        existingProduct.setStockQuantity(request.getStockQuantity());
+	        existingProduct.setBrand(request.getBrand());
+	        existingProduct.setImageUrl(request.getImageUrl());
+	        existingProduct.setDiscountPercentage(request.getDiscountPercentage());
+	        existingProduct.setFeatured(request.getFeatured());
+	        existingProduct.setActive(false);
+	        existingProduct.setUpdatedAt(LocalDateTime.now());
 
-	        return productRepository.save(existingProduct);
+	        existingProduct= productRepository.save(existingProduct);
+	        return convertToResponse(existingProduct);
 	    }
 
 	    public void deleteProduct(Long id) {
@@ -59,16 +127,22 @@ public class ProductService {
 	        productRepository.delete(product);
 	    }
 	    
-	    public List<Product> searchProducts(String keyword) {
+	    public List<ProductResponse> searchProducts(String keyword) {
 	    	System.out.println("ProductService.searchProducts()");
-	        return productRepository.findByNameContainingIgnoreCase(keyword);
+	        return productRepository.findByNameContainingIgnoreCase(keyword)
+	        		                    .stream()
+                                     .map(this::convertToResponse)
+                                      .toList();
 	    }
 
-	    public List<Product> getProductsByCategory(Long categoryId) {
+	    public List<ProductResponse> getProductsByCategory(Long categoryId) {
 	    	System.out.println("ProductService.getProductsByCategory()");
 	        Category category = categoryRepository.findById(categoryId)
 	                .orElseThrow(() ->
 	                        new RuntimeException("Category not found"));
-	        return productRepository.findByCategory(category);
+	        return productRepository.findByCategory(category)
+	        		                     .stream()
+                                      .map(this::convertToResponse)
+                                        .toList();
 	    }
 }

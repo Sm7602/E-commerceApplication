@@ -51,13 +51,5 @@ public class ProductResponse {
 
 
 
-	    private Integer totalReviews;
-
-	    private Integer totalWishlistUsers;
-
-	    private Integer totalCartUsers;
-
-
-
 	    private List<Review> reviews;
 }
