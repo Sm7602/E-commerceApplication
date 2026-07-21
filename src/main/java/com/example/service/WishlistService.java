@@ -1,11 +1,19 @@
 package com.example.service;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.dao.CustomerRepository;
 import com.example.dao.ProductRepository;
 import com.example.dao.UserRepository;
 import com.example.dao.WishlistRepository;
+import com.example.dto.review.ReviewResponse;
+import com.example.dto.wishlist.WishlistRequest;
+import com.example.dto.wishlist.WishlistResponse;
+import com.example.entity.Customer;
 import com.example.entity.Product;
+import com.example.entity.Review;
 import com.example.entity.User;
 import com.example.entity.Wishlist;
 
@@ -16,42 +24,63 @@ public class WishlistService {
     private WishlistRepository wishlistRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private CustomerRepository customerRepository;
 
     @Autowired
     private ProductRepository productRepository;
+    
+    private WishlistResponse convertToResponse(Wishlist wishlist) {
 
-    public Wishlist addToWishlist(Long userId, Long productId) {
+        return WishlistResponse.builder()
+        		    .id(wishlist.getId())
+                .active(wishlist.getActive())
+                .createdAt(wishlist.getCreatedAt())
+                .updatedAt(wishlist.getUpdatedAt())
+                .customer(wishlist.getCustomer())
+                .product(wishlist.getProduct())
+                .build();
+    }
+
+    public WishlistResponse addToWishlist(WishlistRequest request) {
     	System.out.println("WishlistService.addToWishlist()");
-        User user = userRepository.findById(userId)
+    	Customer customer = customerRepository.findById(request.getCustomerId())
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
-        Product product = productRepository.findById(productId)
+                        new RuntimeException("Customer not found"));
+        Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() ->
                         new RuntimeException("Product not found"));
-        Wishlist wishlist = new Wishlist();
-        wishlist.setUser(user);
-        wishlist.setProduct(product);
-        return wishlistRepository.save(wishlist);
+        Wishlist wishlist =Wishlist.builder()
+        		    .active(true)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .customer(customer)
+                .product(product)
+                .build();
+        wishlist= wishlistRepository.save(wishlist);
+        return convertToResponse(wishlist);
     }
 
-    public List<Wishlist> getWishlist(Long userId) {
+    public List<WishlistResponse> getWishlist(long customerId) {
     	System.out.println("WishlistService.getWishlist()");
-        User user = userRepository.findById(userId)
+    	Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
-        return wishlistRepository.findByUser(user);
+                        new RuntimeException("Customer not found"));
+        
+        return wishlistRepository.findByCustomer(customer)
+        		                     .stream()
+                                 .map(this::convertToResponse)
+                                 .toList();
     }
 
-    public void removeFromWishlist(Long userId, Long productId) {
+    public void removeFromWishlist(WishlistRequest request) {
         System.out.println("WishlistService.removeFromWishlist()");
-        User user = userRepository.findById(userId)
+      	Customer customer = customerRepository.findById(request.getCustomerId())
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
-        Product product = productRepository.findById(productId)
+                        new RuntimeException("Customer not found"));
+        Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() ->
                         new RuntimeException("Product not found"));
-        Wishlist wishlist = wishlistRepository.findByUserAndProduct(user, product).orElseThrow(() ->
+        Customer wishlist = wishlistRepository.findByCustomerAndProduct(customer, product).orElseThrow(() ->
                         new RuntimeException("Wishlist item not found"));
         wishlistRepository.delete(wishlist);
     }

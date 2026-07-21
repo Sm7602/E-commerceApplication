@@ -22,7 +22,7 @@ public class ProductResponse {
 
 	    private BigDecimal price;
 
-	    private Double discountPercentage;
+	    private Integer discountPercentage;
 
 	    private BigDecimal discountedPrice;
 

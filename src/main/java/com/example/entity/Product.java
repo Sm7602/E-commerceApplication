@@ -38,7 +38,7 @@ public class Product {
 	    
 	    private String sku;
 
-	    private Double discountPercentage;
+	    private Integer discountPercentage;
 
 	    private BigDecimal discountedPrice;
 

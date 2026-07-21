@@ -17,7 +17,7 @@ public class ProductUpdateRequest {
 
 	    private String brand;
 
-	    private Double discountPercentage;
+	    private Integer discountPercentage;
 
 	    private Boolean featured;
 

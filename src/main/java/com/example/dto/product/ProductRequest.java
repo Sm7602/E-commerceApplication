@@ -32,7 +32,7 @@ public class ProductRequest {
 	    private String brand;
 	    
 	    @PositiveOrZero
-	    private Double discountPercentage;
+	    private Integer discountPercentage;
 
 	    private Boolean featured = false;
 

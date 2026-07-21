@@ -46,23 +46,39 @@ public class ProductService {
 	                .build();
 	    }
 	    
+	    private BigDecimal calculateDiscount(BigDecimal amount,Integer percentage) {
+
+	        if (percentage == null || percentage <= 0) {
+	            return amount;
+	        }
+
+	        BigDecimal discount = amount
+	                .multiply(BigDecimal.valueOf(percentage))
+	                .divide(BigDecimal.valueOf(100));
+
+	        return amount.subtract(discount);
+	    }
+	    
+	    
 	    public ProductResponse saveProduct(ProductRequest request) {
 	        System.out.println("ProductService.saveProduct()");
 	       
 	        Category category = categoryRepository.findById(request.getCategoryId())
 	                .orElseThrow(() ->
-	                        new RuntimeException("User not found"));
+	                        new RuntimeException("Category not found"));
 	        
 	         String sku = "PRD-" + UUID.randomUUID()
             .toString()
             .substring(0, 8)
             .toUpperCase();
 	        
+	         BigDecimal discountedPrice = calculateDiscount(request.getPrice(),request.getDiscountPercentage());
+	         
 	        Product product=Product.builder()
 	        		.name(request.getName())
         		    .description(request.getDescription())
         		    .price(request.getPrice())
-        		    .discountedPrice(BigDecimal.ZERO)
+        		    .discountedPrice(discountedPrice)
         		    .discountPercentage(request.getDiscountPercentage())
         		    .stockQuantity(request.getStockQuantity())
         		    .brand(request.getBrand())
@@ -80,6 +96,7 @@ public class ProductService {
 	        product= productRepository.save(product);
 	        return convertToResponse(product);
 	    }
+	    
 
 	    public List<ProductResponse> getAllProducts() {
 	        System.out.println("ProductService.getAllProducts()");
