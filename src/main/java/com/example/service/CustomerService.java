@@ -87,8 +87,8 @@ public class CustomerService {
 		return convertToResponse(customer);
 	}
 	
-	public CustomerResponse  updateUser(long id,CustomerUpdateRequest request) {
-		System.out.println("CustomerService.updateuser() running.......");
+	public CustomerResponse  updateCustomer(long id,CustomerUpdateRequest request) {
+		System.out.println("CustomerService.updateCustomer() running.......");
 		 Customer existingCustomer = customerRepository.findById(id)
 	                .orElseThrow(() ->
 	                        new RuntimeException("User not found with id: " + id));
@@ -111,16 +111,16 @@ public class CustomerService {
 			return convertToResponse(existingCustomer);
 	}
 		
-	public void deleteUserById(long id) {
-		System.out.println("CustomerService.deleteUserById() running.......");
+	public void deleteCustomerById(long id) {
+		System.out.println("CustomerService.deleteCustomerById() running.......");
 		 Customer customer = customerRepository.findById(id)
 	                .orElseThrow(() ->
 	                        new RuntimeException("User not found with id: " + id));
 		 customerRepository.delete(customer);
 	}
 	
-	public void deleteallUser() {
-		System.out.println("CustomerService.deleteallUser() running.......");
+	public void deleteallCustomer() {
+		System.out.println("CustomerService.deleteallCustomer() running.......");
 		customerRepository.deleteAll();
 	}
 	

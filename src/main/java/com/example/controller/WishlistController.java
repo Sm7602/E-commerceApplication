@@ -3,13 +3,15 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.entity.Wishlist;
+import com.example.dto.wishlist.WishlistRequest;
+import com.example.dto.wishlist.WishlistResponse;
 import com.example.service.WishlistService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/wishlist")
@@ -19,21 +21,21 @@ public class WishlistController {
     private WishlistService wishlistService;
 
     @PostMapping("/{productId}")
-    public Wishlist addToWishlist(@PathVariable Long productId, @RequestParam Long userId) {
+    public WishlistResponse addToWishlist(@Valid @RequestBody WishlistRequest request) {
         System.out.println("WishlistController.addToWishlist()");
-        return wishlistService.addToWishlist(userId, productId);
+        return wishlistService.addToWishlist(request);
     }
 
     @GetMapping
-    public List<Wishlist> getWishlist( @RequestParam Long userId) {
+    public List<WishlistResponse> getWishlist( @RequestParam Long userId) {
         System.out.println("WishlistController.getWishlist()");
         return wishlistService.getWishlist(userId);
     }
 
     @DeleteMapping("/{productId}")
-    public String removeFromWishlist(@PathVariable Long productId, @RequestParam Long userId) {
+    public String removeFromWishlist(@Valid @RequestBody WishlistRequest request) {
         System.out.println("WishlistController.removeFromWishlist()");
-        wishlistService.removeFromWishlist(userId, productId);
+        wishlistService.removeFromWishlist(request);
         return "Product removed from wishlist";
     }
 }

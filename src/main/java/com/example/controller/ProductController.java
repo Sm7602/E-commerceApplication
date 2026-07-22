@@ -10,8 +10,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.entity.Product;
+import com.example.dto.product.ProductRequest;
+import com.example.dto.product.ProductResponse;
+import com.example.dto.product.ProductUpdateRequest;
 import com.example.service.ProductService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/products")
@@ -21,27 +25,27 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping
-    public Product saveProduct(@RequestBody Product product) {
+    public ProductResponse saveProduct(@Valid @RequestBody ProductRequest request) {
     	System.out.println("ProductController.saveProduct()");
-        return productService.saveProduct(product);
+        return productService.saveProduct(request);
     }
 
     @GetMapping
-    public List<Product> getAllProducts() {
+    public List<ProductResponse> getAllProducts() {
     	System.out.println("ProductController.getAllProducts()");
         return productService.getAllProducts();
     }
 
     @GetMapping("/{id}")
-    public Product getProductById(@PathVariable Long id) {
+    public ProductResponse getProductById(@PathVariable Long id) {
     	 System.out.println("ProductController.getProductById()");
         return productService.getProductById(id);
     }
 
     @PutMapping("/{id}")
-    public Product updateProduct(@PathVariable Long id,@RequestBody Product product) {
+    public ProductResponse updateProduct(@PathVariable Long id,@Valid @RequestBody ProductUpdateRequest request) {
     	 System.out.println("ProductController.updateProduct()");
-        return productService.updateProduct(id, product);
+        return productService.updateProduct(id, request);
     }
 
     @DeleteMapping("/{id}")
@@ -52,13 +56,13 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public List<Product> searchProducts( @RequestParam String keyword) {
+    public List<ProductResponse> searchProducts( @RequestParam String keyword) {
     	System.out.println("ProductController.searchProducts()");
         return productService.searchProducts(keyword);
     }
 
     @GetMapping("/category/{id}")
-    public List<Product> getProductsByCategory(@PathVariable Long id) {
+    public List<ProductResponse> getProductsByCategory(@PathVariable Long id) {
     	System.out.println("ProductController.getProductsByCategory()");
         return productService.getProductsByCategory(id);
     }

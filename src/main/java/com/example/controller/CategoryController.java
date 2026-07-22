@@ -9,8 +9,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.entity.Category;
+import com.example.dto.category.CategoryRequest;
+import com.example.dto.category.CategoryResponse;
+import com.example.dto.category.CategoryUpdateRequest;
 import com.example.service.CategoryService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -21,28 +24,27 @@ public class CategoryController {
 	
 
 	@PostMapping()
-	public Category saveCategory(@RequestBody Category category) {
+	public CategoryResponse saveCategory(@Valid @RequestBody CategoryRequest request) {
 		System.out.println("CategoryController.saveCategory()");
-		categoryService.saveCategory(category);
-		return category;	
+		return categoryService.saveCategory(request);
 	}
 	
 	@GetMapping()
-	public List<Category> getAllCategory() {
+	public List<CategoryResponse> getAllCategory() {
 		System.out.println("CategoryController.getAllCategory()");
 		return categoryService.getAllCategories();
 	}
 	
 	@GetMapping("/{id}")
-	public Category getCategoryById(@PathVariable long id) {
+	public CategoryResponse getCategoryById(@PathVariable long id) {
 		System.out.println("CategoryController.getCategoryById() running.......");
 		return categoryService.getCategoryById(id);
 	}
 	
 	@PutMapping("/{id}")
-	public Category updateCategory(@PathVariable Long id,@RequestBody Category category) {
+	public CategoryResponse updateCategory(@PathVariable Long id,@Valid @RequestBody CategoryUpdateRequest request) {
 		System.out.println("CategoryController.updateCategory() running.......");
-		return categoryService.updateCategory(id,category);
+		return categoryService.updateCategory(id,request);
 	}
 	
 	@DeleteMapping("/{id}")

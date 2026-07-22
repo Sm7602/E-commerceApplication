@@ -130,7 +130,7 @@ public class OrderService {
 	    }
 	    
 	    
-	    public Order deliverOrder(Long orderId) {
+	    public OrderResponse deliverOrder(Long orderId) {
 
 	        Order order = orderRepository.findById(orderId)
 	                .orElseThrow(() ->
@@ -140,7 +140,8 @@ public class OrderService {
 	        order.setDeliveredAt(LocalDateTime.now());
 	        order.setUpdatedAt(LocalDateTime.now());
 
-	        return orderRepository.save(order);
+	        order= orderRepository.save(order);
+	  	      return convertToResponse(order);
 	    }
 	
 }

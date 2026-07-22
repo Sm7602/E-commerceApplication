@@ -1,6 +1,5 @@
 package com.example.dao;
 
-
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.entity.Customer;
@@ -13,9 +12,9 @@ public interface WishlistRepository extends JpaRepository<Wishlist,Long>{
 
 	    
 
-		Optional<Customer> findByCustomer(Customer customer);
+		Optional<Wishlist> findByCustomer(Customer customer);
 
-		Optional<Customer> findByCustomerAndProduct(Customer customer, Product product);
+		Optional<Wishlist> findByCustomerAndProduct(Customer customer, Product product);
 
 		
 

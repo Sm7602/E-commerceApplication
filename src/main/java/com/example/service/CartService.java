@@ -3,23 +3,20 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.dao.CartItemRepository;
 import com.example.dao.CartRepository;
 import com.example.dao.CustomerRepository;
 import com.example.dao.ProductRepository;
-import com.example.dao.UserRepository;
-import com.example.dto.admin.AdminResponse;
 import com.example.dto.cart.CartRequest;
 import com.example.dto.cart.CartResponse;
-import com.example.entity.Admin;
+import com.example.dto.cart.CartUpdateRequest;
 import com.example.entity.Cart;
 import com.example.entity.CartItem;
 import com.example.entity.Customer;
 import com.example.entity.Product;
-import com.example.entity.User;
+
 
 @Service
 public class CartService {
@@ -49,17 +46,17 @@ public class CartService {
 	    }
 	    
 
-	    public CartResponse addItemToCart(Long customerId, Long productId,CartRequest request) {
+	    public CartResponse addItemToCart(CartRequest request) {
 
                System.out.println("CartService.addItemToCart()");
 
-               Customer customer = customerRepository.findById(customerId)
+               Customer customer = customerRepository.findById(request.getCustomerId())
                                                    .orElseThrow(() ->
-                                             new RuntimeException("Customer Not Found : " + customerId));
+                                             new RuntimeException("Customer Not Found : "));
                
-              Product product = productRepository.findById(productId)
+              Product product = productRepository.findById(request.getProductId())
                                              .orElseThrow(() ->
-                                          new RuntimeException("Product Not Found : " + productId));
+                                          new RuntimeException("Product Not Found : "));
 
                  if (product.getStockQuantity() < request.getProductId()) {
                        throw new RuntimeException("Requested quantity is not available.");
@@ -120,14 +117,18 @@ public class CartService {
 	    }
 
 	  
-	    public CartResponse updateCartItem(Long cartItemId,Integer quantity) {
+	    public CartResponse updateCartItem(Long cartItemId,CartUpdateRequest request) {
 	    	System.out.println("CartService.updateCartItem()");
 	        CartItem cartItem = cartItemRepository.findById(cartItemId)
 	                .orElseThrow(() ->
 	                        new RuntimeException("Cart Item not found"));
-	        cartItem.setQuantity(quantity);
+	        cartItem.setQuantity(request.getQuantity());
+	        cartItem.setActive(request.getActive());
+	        cartItem.setUpdatedAt(LocalDateTime.now());
 	        cartItemRepository.save(cartItem);
-	        return cartItem.getCart();
+	      
+	        Cart cart= cartItem.getCart();
+	       return convertToResponse(cart);
 	    }
 
 	  
@@ -140,12 +141,12 @@ public class CartService {
 	    }
 
 	    
-	    public void clearCart(Long userId) {
+	    public void clearCart(Long customerId) {
 	    	System.out.println("CartService.clearCart()");
-	        User user = userRepository.findById(userId)
+	        Customer customer = customerRepository.findById(customerId)
 	                .orElseThrow(() ->
-	                        new RuntimeException("User not found"));
-	        Cart cart = user.getCart();
+	                        new RuntimeException("Customer not found"));
+	        Cart cart = customer.getCart();
 	        if (cart == null) {
 	            throw new RuntimeException("Cart not found");
 	        }
@@ -153,7 +154,17 @@ public class CartService {
 	            cartItemRepository.deleteAll(cart.getItems());
 	        }
 	        cart.setTotalAmount(BigDecimal.ZERO);
+	        cart.setUpdatedAt(LocalDateTime.now());
 	        cartRepository.save(cart);
 	    }
+
+
+		public CartResponse getCart(Long cartId) {
+			Cart cart=cartRepository.findById(cartId)
+	                .orElseThrow(() ->
+                    new RuntimeException("Admin not found"));
+               return convertToResponse(cart);
+			
+		}
 
 }

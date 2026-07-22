@@ -3,18 +3,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.example.dao.CustomerRepository;
 import com.example.dao.ProductRepository;
-import com.example.dao.UserRepository;
 import com.example.dao.WishlistRepository;
-import com.example.dto.review.ReviewResponse;
 import com.example.dto.wishlist.WishlistRequest;
 import com.example.dto.wishlist.WishlistResponse;
 import com.example.entity.Customer;
 import com.example.entity.Product;
-import com.example.entity.Review;
-import com.example.entity.User;
 import com.example.entity.Wishlist;
 
 @Service
@@ -80,8 +75,9 @@ public class WishlistService {
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() ->
                         new RuntimeException("Product not found"));
-        Customer wishlist = wishlistRepository.findByCustomerAndProduct(customer, product).orElseThrow(() ->
+        Wishlist wishlist = wishlistRepository.findByCustomerAndProduct(customer, product).orElseThrow(() ->
                         new RuntimeException("Wishlist item not found"));
+        
         wishlistRepository.delete(wishlist);
     }
 }
