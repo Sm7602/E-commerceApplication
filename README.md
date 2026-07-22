@@ -389,11 +389,13 @@ This is an actively evolving learning project. Honest current state:
 
 ---
 
-## 👤 Author
+## 👨‍💻 Author
 
-**Shubhankar Gupta**
-Self-taught developer · Delhi, India
-GitHub: [@shubhankar360](https://github.com/shubhankar360)
+**Souvik Maity** — Java / Spring Boot Backend Developer
+
+[![GitHub](https://img.shields.io/badge/GitHub-sm7602-181717?style=for-the-badge&logo=github)](https://github.com/sm7602)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/souvik-maity-2a6759333)
+[![Email](https://img.shields.io/badge/Email-Contact-D14836?style=for-the-badge&logo=gmail)](mailto:sm2496444l@gmail.com)
 
 ---
 
