@@ -1,18 +1,16 @@
-# E-commerceApplication
-[README.md](https://github.com/user-attachments/files/28753002/README.md)
-
 <div align="center">
-
-<img src="https://img.shields.io/badge/Spring%20Boot-4.0.6-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"/>
-<img src="https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white"/>
-<img src="https://img.shields.io/badge/MySQL-9.4-4479A1?style=for-the-badge&logo=mysql&logoColor=white"/>
-<img src="https://img.shields.io/badge/Hibernate-7.2-59666C?style=for-the-badge&logo=hibernate&logoColor=white"/>
-<img src="https://img.shields.io/badge/Maven-3.9-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white"/>
-<img src="https://img.shields.io/badge/Status-In%20Development-orange?style=for-the-badge"/>
 
 # 🛒 E-Commerce Backend API
 
-### A production-ready RESTful backend built with Spring Boot 4, Hibernate ORM, and MySQL — following clean MVC architecture with full CRUD operations across 9 domain entities.
+**A RESTful e-commerce backend built with Spring Boot, Spring Security, and JWT authentication — layered MVC architecture with role-based identity, JPA/Hibernate persistence, and full CRUD across 11 domain entities.**
+
+<img src="https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white"/>
+<img src="https://img.shields.io/badge/Spring%20Boot-3.5.3-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"/>
+<img src="https://img.shields.io/badge/Spring%20Security-JWT-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white"/>
+<img src="https://img.shields.io/badge/MySQL-8.x-4479A1?style=for-the-badge&logo=mysql&logoColor=white"/>
+<img src="https://img.shields.io/badge/Hibernate-JPA-59666C?style=for-the-badge&logo=hibernate&logoColor=white"/>
+<img src="https://img.shields.io/badge/Maven-3.9-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white"/>
+<img src="https://img.shields.io/badge/Status-Learning%20Project-orange?style=for-the-badge"/>
 
 </div>
 
@@ -24,11 +22,13 @@
 - [Tech Stack](#-tech-stack)
 - [Architecture](#-architecture)
 - [Project Structure](#-project-structure)
-- [Entity Relationship](#-entity-relationship)
+- [Domain Model](#-domain-model)
+- [Authentication Flow](#-authentication-flow)
 - [API Endpoints](#-api-endpoints)
 - [Getting Started](#-getting-started)
 - [Configuration](#-configuration)
 - [Key Features](#-key-features)
+- [Roadmap & Known Limitations](#-roadmap--known-limitations)
 - [What I Learned](#-what-i-learned)
 - [Author](#-author)
 
@@ -36,545 +36,369 @@
 
 ## 🧩 About the Project
 
-This is a fully functional **E-Commerce REST API** backend built using **Spring Boot 4.0.6** — the latest Spring framework — designed to power an online shopping platform.
+This is a backend REST API for an online store, built with **Spring Boot 3.5.3** on **Java 21**. It models the core commerce flow end to end:
 
-The application handles the complete e-commerce flow:
-- User registration and authentication
+- User registration and login with **JWT-based stateless authentication**
+- Two roles — `ADMIN` and `CUSTOMER` — backed by a single `users` table via a `UserDetails` implementation
 - Product catalogue with category management
-- Shopping cart and order processing
+- Shopping cart, checkout, and order lifecycle (place → cancel → deliver)
 - Wishlist management
 - Product reviews and ratings
 
-It was built from scratch as a portfolio project to demonstrate real-world backend development skills including layered architecture, JPA/Hibernate ORM mapping, RESTful API design, and relational database modelling.
+It was built as a portfolio / learning project to practise real-world backend concerns: a clean layered architecture, JPA/Hibernate relationship mapping, DTO-based request/response contracts with Bean Validation, and a from-scratch JWT security filter chain.
 
-> **Why this project matters:** Building an e-commerce backend requires handling complex entity relationships (many-to-many wishlists, one-to-many orders, bidirectional mappings) — the exact skills employers look for in a Java backend developer.
+> **Why it matters:** Wiring Spring Security together with a custom JWT filter, a `UserDetailsService`, and a `DaoAuthenticationProvider` — while mapping a non-trivial relational domain (one-to-one, one-to-many, and bidirectional associations) — covers the exact ground a Java backend role expects.
 
 ---
 
 ## 🛠 Tech Stack
 
-| Layer | Technology | Version |
+| Layer | Technology | Notes |
 |---|---|---|
 | Language | Java | 21 (LTS) |
-| Framework | Spring Boot | 4.0.6 |
-| Web Layer | Spring MVC (REST) | 7.0.7 |
-| ORM | Hibernate | 7.2.12 Final |
-| Data Access | Spring Data JPA | 4.0.6 |
-| Database | MySQL | 9.4 |
-| Connection Pool | HikariCP | Built-in |
-| Build Tool | Apache Maven | 3.9+ |
-| Boilerplate Reduction | Lombok | 1.18.42 |
-| Dev Tools | Spring Boot DevTools | 4.0.6 |
-| Runtime | Apache Tomcat | 11.0.21 (Embedded) |
+| Framework | Spring Boot | 3.5.3 |
+| Web | Spring MVC (REST controllers) | — |
+| Security | Spring Security + JJWT `0.13.0` | Stateless, `Bearer` token, HS256 |
+| Persistence | Spring Data JPA / Hibernate | `ddl-auto=update` |
+| Database | MySQL | via `mysql-connector-j` |
+| Validation | Jakarta Bean Validation | `@Valid` on DTOs |
+| Boilerplate | Lombok | `@Data`, `@Builder`, `@RequiredArgsConstructor` |
+| Build | Maven | wrapper included (`mvnw`) |
+| Dev | Spring Boot DevTools | hot reload |
 
 ---
 
 ## 🏗 Architecture
 
-This project follows a strict **3-Layer MVC Architecture**:
+Standard layered (n-tier) architecture with a clear one-way dependency flow:
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    CLIENT (Postman / Frontend)            │
-│                    HTTP Requests (REST/JSON)              │
-└──────────────────────────┬──────────────────────────────┘
-                           │
-┌──────────────────────────▼──────────────────────────────┐
-│                  CONTROLLER LAYER                         │
-│   @RestController  │  Request mapping  │  Input validation│
-│                                                           │
-│  CartController    ProductController   OrderController    │
-│  UserController    CategoryController  ReviewController   │
-│  WishlistController                                       │
-└──────────────────────────┬──────────────────────────────┘
-                           │
-┌──────────────────────────▼──────────────────────────────┐
-│                   SERVICE LAYER                           │
-│   @Service  │  Business Logic  │  Transaction Management  │
-│                                                           │
-│  CartService       ProductService      OrderService       │
-│  UserService       CategoryService     ReviewService      │
-│  WishlistService                                          │
-└──────────────────────────┬──────────────────────────────┘
-                           │
-┌──────────────────────────▼──────────────────────────────┐
-│                  REPOSITORY LAYER                         │
-│   @Repository  │  Spring Data JPA  │  JPQL Queries        │
-│                                                           │
-│  CartRepository      ProductRepository   OrderRepository  │
-│  UserRepository      CategoryRepository  ReviewRepository │
-│  CartItemRepository  OrderItemRepository WishlistRepository│
-└──────────────────────────┬──────────────────────────────┘
-                           │
-┌──────────────────────────▼──────────────────────────────┐
-│                   DATABASE LAYER                          │
-│              MySQL 9.4  │  Hibernate ORM                  │
-│        HikariCP Connection Pool  │  9 Tables              │
-└─────────────────────────────────────────────────────────┘
+HTTP Request
+    │
+    ▼
+┌─────────────┐   JWT filter validates the token and populates
+│ Controller  │◄─ the SecurityContext before the request is handled
+└─────────────┘
+    │  DTO in / DTO out
+    ▼
+┌─────────────┐   Business logic, entity ↔ DTO mapping,
+│  Service    │   discount / total calculations
+└─────────────┘
+    │
+    ▼
+┌─────────────┐   Spring Data JPA interfaces
+│ Repository  │
+└─────────────┘
+    │
+    ▼
+┌─────────────┐
+│   MySQL     │
+└─────────────┘
 ```
 
-**Design Principles Applied:**
-- **Separation of Concerns** — each layer has a single responsibility
-- **Dependency Injection** — Spring IoC container manages all beans
-- **DRY (Don't Repeat Yourself)** — shared logic extracted into services
-- **RESTful Design** — proper HTTP methods, status codes, and resource naming
-
----
-
-## 📁 Project Structure
+**Security path (per request):**
 
 ```
-E-commerceApplication/
-│
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/
-│   │   │       └── example/
-│   │   │           │
-│   │   │           ├── ECommerceApplication.java       ← Main entry point
-│   │   │           │
-│   │   │           ├── controller/                     ← REST Controllers
-│   │   │           │   ├── CartController.java
-│   │   │           │   ├── CategoryController.java
-│   │   │           │   ├── OrderController.java
-│   │   │           │   ├── ProductController.java
-│   │   │           │   ├── ReviewController.java
-│   │   │           │   ├── UserController.java
-│   │   │           │   └── WishlistController.java
-│   │   │           │
-│   │   │           ├── dao/                            ← Repository Interfaces
-│   │   │           │   ├── CartItemRepository.java
-│   │   │           │   ├── CartRepository.java
-│   │   │           │   ├── CategoryRepository.java
-│   │   │           │   ├── OrderItemRepository.java
-│   │   │           │   ├── OrderRepository.java
-│   │   │           │   ├── ProductRepository.java
-│   │   │           │   ├── ReviewRepository.java
-│   │   │           │   ├── UserRepository.java
-│   │   │           │   └── WishlistRepository.java
-│   │   │           │
-│   │   │           ├── entity/                         ← JPA Entities
-│   │   │           │   ├── BaseEntity.java
-│   │   │           │   ├── Cart.java
-│   │   │           │   ├── CartItem.java
-│   │   │           │   ├── Category.java
-│   │   │           │   ├── Order.java
-│   │   │           │   ├── OrderItem.java
-│   │   │           │   ├── Product.java
-│   │   │           │   ├── Review.java
-│   │   │           │   ├── User.java
-│   │   │           │   └── Wishlist.java
-│   │   │           │
-│   │   │           └── service/                        ← Business Logic
-│   │   │               ├── CartService.java
-│   │   │               ├── CategoryService.java
-│   │   │               ├── OrderService.java
-│   │   │               ├── ProductService.java
-│   │   │               ├── ReviewService.java
-│   │   │               ├── UserService.java
-│   │   │               └── WishlistService.java
-│   │   │
-│   │   └── resources/
-│   │       └── application.properties                  ← DB + App Config
-│   │
-│   └── test/
-│       └── java/
-│           └── com/example/
-│               └── ECommerceApplicationTests.java
-│
-├── pom.xml                                             ← Maven Dependencies
-├── mvnw / mvnw.cmd                                     ← Maven Wrapper
-└── README.md
+Request ──► JwtAuthenticationFilter ──► JwtService.extractUsername()
+                                          │
+                                          ▼
+                              UserDetailsService.loadUserByUsername()
+                                          │
+                                          ▼
+                              JwtService.isTokenValid()  ──► SecurityContext set
+                                          │
+                                          ▼
+                              UsernamePasswordAuthenticationFilter ──► Controller
 ```
 
 ---
 
-## 🗃 Entity Relationship
-
-The application manages **9 JPA entities** with the following relationships:
+## 📂 Project Structure
 
 ```
-USER ──────────────────────────────────────────────────────────────┐
-  │                                                                 │
-  │ @OneToOne                                                       │ @OneToMany
-  ▼                                                                 ▼
-CART ──── @OneToMany ────► CART_ITEM ──── @ManyToOne ────► PRODUCT │ ORDER
-  │                                            │                    │   │
-  │                                            │ @ManyToOne         │   │ @OneToMany
-  │                               @ManyToOne ◄─┘                   │   ▼
-  │                                            │                    │ ORDER_ITEM ──── @ManyToOne ────► PRODUCT
-  │                                       CATEGORY                  │
-  │                                                                  │
-  │                                                                  │ @OneToMany
-  │                                                                  ▼
-  │                                                               REVIEW
-  │
-  │ @OneToMany
-  ▼
-WISHLIST ──── @ManyToMany ────► PRODUCT
+src/main/java/com/example
+├── ECommerceApplication.java          # Spring Boot entry point
+│
+├── controller/                        # REST endpoints (9 controllers)
+│   ├── AuthgenticationController.java  # register + login
+│   ├── AdminController.java
+│   ├── CustomerController.java
+│   ├── ProductController.java
+│   ├── CategoryController.java
+│   ├── CartController.java
+│   ├── OrderController.java
+│   ├── ReviewController.java
+│   └── WishlistController.java
+│
+├── service/                           # Business logic (9 services)
+│
+├── dao/                               # Spring Data JPA repositories (11)
+│
+├── dto/                               # Request/response objects, grouped by domain
+│   ├── auth/    admin/    customer/
+│   ├── product/ category/ cart/
+│   └── order/   review/   wishlist/
+│
+├── entity/                            # JPA entities (12)
+│   ├── User.java   (implements UserDetails)
+│   ├── Role.java   (ADMIN | CUSTOMER)
+│   ├── Admin.java      Customer.java
+│   ├── Product.java    Category.java
+│   ├── Cart.java       CartItem.java
+│   ├── Order.java      OrderItem.java
+│   ├── Review.java     Wishlist.java
+│
+└── security/                          # JWT + Spring Security config
+    ├── SecurityConfiguration.java     # filter chain, stateless session
+    ├── ApplicationConfig.java         # UserDetailsService, AuthProvider, BCrypt
+    ├── JwtAuthenticationFilter.java   # OncePerRequestFilter
+    └── JwtService.java                # token create / parse / validate
+
+src/main/resources/application.properties
+src/test/java/com/example/ec/ECommerceApplicationTests.java
 ```
 
-**Relationship Summary:**
+---
 
-| Entity | Relationship | Target Entity |
+## 🗄 Domain Model
+
+Twelve entities capture the commerce domain. Key relationships:
+
+| Relationship | Type | Description |
 |---|---|---|
-| `User` | @OneToOne | `Cart` |
-| `User` | @OneToMany | `Order` |
-| `User` | @OneToMany | `Review` |
-| `User` | @OneToMany | `Wishlist` |
-| `Cart` | @OneToMany | `CartItem` |
-| `CartItem` | @ManyToOne | `Product` |
-| `Order` | @OneToMany | `OrderItem` |
-| `OrderItem` | @ManyToOne | `Product` |
-| `Product` | @ManyToOne | `Category` |
-| `Product` | @OneToMany | `Review` |
-| `Wishlist` | @ManyToMany | `Product` |
+| `User` ↔ `Customer` | One-to-One | Auth identity ↔ customer profile |
+| `User` ↔ `Admin` | One-to-One | Auth identity ↔ admin profile |
+| `Customer` ↔ `Cart` | One-to-One | Each customer owns one cart |
+| `Cart` ↔ `CartItem` | One-to-Many | Line items in a cart |
+| `Category` ↔ `Product` | One-to-Many | Products grouped by category |
+| `Customer` ↔ `Order` | One-to-Many | Order history |
+| `Order` ↔ `OrderItem` | One-to-Many | Line items in an order |
+| `Product` ↔ `Review` | One-to-Many | Ratings & comments |
+| `Customer` ↔ `Wishlist` | One-to-Many | Saved products |
+
+`User` is the security principal — it implements `UserDetails`, stores the BCrypt-hashed password, and exposes a single authority (`ROLE_ADMIN` / `ROLE_CUSTOMER`) derived from its `Role` enum.
+
+---
+
+## 🔐 Authentication Flow
+
+1. **Register** — `POST /api/auth/registerCustomer` (or `registerAdmin`) creates a `User` with a BCrypt-hashed password, provisions the matching `Customer`/`Admin` profile (and an empty `Cart` for customers), and returns a signed JWT.
+2. **Login** — `POST /api/auth/authenticate` verifies credentials through the `AuthenticationManager` and returns a fresh JWT.
+3. **Access** — clients send the token on subsequent requests:
+   ```
+   Authorization: Bearer <token>
+   ```
+   `JwtAuthenticationFilter` extracts and validates it, loads the user, and populates the `SecurityContext`.
+
+Tokens are signed with **HS256** and the session policy is **stateless** — no server-side session is stored.
 
 ---
 
 ## 🌐 API Endpoints
 
-### 👤 User API
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/users/register` | Register new user |
-| `POST` | `/api/users/login` | User login |
-| `GET` | `/api/users/{id}` | Get user profile |
-| `PUT` | `/api/users/{id}` | Update user profile |
-| `DELETE` | `/api/users/{id}` | Delete user account |
+Base URL: `http://localhost:8080`
 
-### 📦 Product API
+### Auth — `/api/auth`
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/api/products` | Get all products (paginated) |
-| `GET` | `/api/products/{id}` | Get product by ID |
-| `GET` | `/api/products/category/{id}` | Get products by category |
-| `POST` | `/api/products` | Create new product |
-| `PUT` | `/api/products/{id}` | Update product |
-| `DELETE` | `/api/products/{id}` | Delete product |
+| POST | `/registerCustomer` | Register a customer, returns JWT |
+| POST | `/registerAdmin` | Register an admin, returns JWT |
+| POST | `/authenticate` | Login, returns JWT |
 
-### 🛒 Cart API
+### Products — `/api/products`
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/api/cart/{userId}` | Get user's cart |
-| `POST` | `/api/cart/{userId}/add` | Add item to cart |
-| `PUT` | `/api/cart/item/{itemId}` | Update cart item quantity |
-| `DELETE` | `/api/cart/item/{itemId}` | Remove item from cart |
-| `DELETE` | `/api/cart/{userId}/clear` | Clear entire cart |
+| POST | `/` | Create a product |
+| GET | `/` | List all products |
+| GET | `/{id}` | Get product by id |
+| PUT | `/{id}` | Update a product |
+| DELETE | `/{id}` | Delete a product |
+| GET | `/search?keyword=` | Search by name |
+| GET | `/category/{id}` | Products in a category |
 
-### 📋 Order API
+### Categories — `/api/categories`
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/api/orders/{userId}` | Place new order |
-| `GET` | `/api/orders/{orderId}` | Get order details |
-| `GET` | `/api/orders/user/{userId}` | Get user's order history |
-| `PUT` | `/api/orders/{orderId}/status` | Update order status |
-| `DELETE` | `/api/orders/{orderId}` | Cancel order |
+| POST | `/` | Create a category |
+| GET | `/` | List all categories |
+| GET | `/{id}` | Get category by id |
+| PUT | `/{id}` | Update a category |
+| DELETE | `/{id}` | Delete a category |
+| DELETE | `/deleteAllCategory` | Delete all categories |
 
-### 🏷 Category API
+### Cart — `/api/cart`
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/api/categories` | Get all categories |
-| `POST` | `/api/categories` | Create category |
-| `PUT` | `/api/categories/{id}` | Update category |
-| `DELETE` | `/api/categories/{id}` | Delete category |
+| POST | `/items` | Add an item to the cart |
+| GET | `/?CartId=` | Get a cart |
+| PUT | `/items/{id}` | Update a cart item |
+| DELETE | `/items/{id}` | Remove a cart item |
+| DELETE | `/clear?userId=` | Clear the cart |
 
-### ❤️ Wishlist API
+### Orders — `/api/orders`
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/api/wishlist/{userId}` | Get user's wishlist |
-| `POST` | `/api/wishlist/{userId}/add/{productId}` | Add product to wishlist |
-| `DELETE` | `/api/wishlist/{userId}/remove/{productId}` | Remove from wishlist |
+| POST | `/` | Create an order |
+| GET | `/` | List orders |
+| GET | `/{id}` | Get order by id |
+| PUT | `/{id}` | Update an order |
+| PATCH | `/{id}/cancel` | Cancel an order |
+| PATCH | `/{id}/deliver` | Mark as delivered |
 
-### ⭐ Review API
+### Reviews — `/api/reviews`
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/api/reviews/product/{productId}` | Get product reviews |
-| `POST` | `/api/reviews/{userId}/{productId}` | Add review |
-| `PUT` | `/api/reviews/{reviewId}` | Update review |
-| `DELETE` | `/api/reviews/{reviewId}` | Delete review |
+| POST | `/` | Create a review |
+| GET | `/product/{productId}` | Reviews for a product |
+| PUT | `/{reviewId}` | Update a review |
+| DELETE | `/{reviewId}` | Delete a review |
+
+### Wishlist — `/api/wishlist`
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/{productId}` | Add product to wishlist |
+| GET | `/` | Get wishlist |
+| DELETE | `/{productId}` | Remove from wishlist |
+
+### Customers — `/api/customer` &nbsp;·&nbsp; Admins — `/api/v1/admins`
+Standard CRUD (`POST` / `GET` / `GET /{id}` / `PUT /{id}` / `DELETE /{id}`).
+
+> ℹ️ **Note:** all `/api/**` routes are currently open (see [Known Limitations](#-roadmap--known-limitations)). The JWT infrastructure is fully wired but not yet enforced on business endpoints.
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
+- **JDK 21+**
+- **MySQL 8.x** running locally
+- Maven (or use the bundled `./mvnw` wrapper)
 
-Make sure you have the following installed:
-
-- **Java 17 or 21** — [Download JDK](https://adoptium.net/)
-- **MySQL 8+** — [Download MySQL](https://dev.mysql.com/downloads/)
-- **Maven 3.9+** — [Download Maven](https://maven.apache.org/download.cgi)
-- **Git** — [Download Git](https://git-scm.com/)
-- **Postman** (optional, for API testing) — [Download Postman](https://www.postman.com/)
-
-### Installation
-
-**1. Clone the repository**
+### 1. Clone
 ```bash
-git clone https://github.com/your-username/E-commerceApplication.git
-cd E-commerceApplication
+git clone https://github.com/shubhankar360/E-commerceApplication-Jwt-Autentication.git
+cd E-commerceApplication-Jwt-Autentication
 ```
 
-**2. Create the MySQL database**
+### 2. Create the database
 ```sql
 CREATE DATABASE ecommerce;
-USE ecommerce;
 ```
 
-**3. Configure database credentials**
+### 3. Configure credentials
+Edit `src/main/resources/application.properties` (see [Configuration](#-configuration)) — or better, supply them as environment variables.
 
-Open `src/main/resources/application.properties` and update:
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/ecommerce
-spring.datasource.username=your_mysql_username
-spring.datasource.password=your_mysql_password
-```
-
-**4. Build the project**
+### 4. Run
 ```bash
-mvn clean install
+./mvnw spring-boot:run          # Linux / macOS
+mvnw.cmd spring-boot:run        # Windows
 ```
 
-**5. Run the application**
+The API starts on **http://localhost:8080**. Hibernate creates/updates the schema automatically (`ddl-auto=update`).
+
+### 5. Smoke test
 ```bash
-mvn spring-boot:run
-```
+# Register a customer
+curl -X POST http://localhost:8080/api/auth/registerCustomer \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "Jane", "lastName": "Doe",
+    "email": "jane@example.com", "password": "secret123",
+    "phoneNumber": "9876543210", "dateOfBirth": "1995-05-20",
+    "gender": "FEMALE", "addressLine1": "12 Main St",
+    "city": "Delhi", "state": "Delhi", "country": "India", "pincode": "110001"
+  }'
 
-Or run the JAR directly:
-```bash
-java -jar target/E-commerceApplication-0.0.1-SNAPSHOT.jar
+# Login
+curl -X POST http://localhost:8080/api/auth/authenticate \
+  -H "Content-Type: application/json" \
+  -d '{"email": "jane@example.com", "password": "secret123"}'
 ```
-
-**6. Verify it's running**
-
-Open your browser or Postman:
-```
-http://localhost:8080/api/products
-```
-
-You should see an empty JSON array `[]` — the app is running! ✅
 
 ---
 
-## ⚙ Configuration
+## ⚙️ Configuration
 
-Complete `application.properties` setup:
+`src/main/resources/application.properties`:
 
 ```properties
-# ── Server ──────────────────────────────────────
 server.port=8080
 
-# ── Database ─────────────────────────────────────
 spring.datasource.url=jdbc:mysql://localhost:3306/ecommerce
-spring.datasource.username=root
-spring.datasource.password=your_password
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
 
-# ── Hibernate / JPA ───────────────────────────────
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
-
-# ── HikariCP Connection Pool ──────────────────────
-spring.datasource.hikari.maximum-pool-size=10
-spring.datasource.hikari.minimum-idle=5
-spring.datasource.hikari.connection-timeout=30000
-
-# ── DevTools ──────────────────────────────────────
-spring.devtools.restart.enabled=true
 ```
 
-> ⚠️ **Note:** Set `spring.jpa.hibernate.ddl-auto=create` on first run to auto-generate all tables, then change to `update` for subsequent runs.
+Then export the values before running:
+```bash
+export DB_USERNAME=root
+export DB_PASSWORD=yourpassword
+```
+
+> 🔒 **Do not commit real credentials.** Use environment variables (as above) or a git-ignored `application-local.properties`. The JWT signing key should likewise be externalised, not hard-coded.
 
 ---
 
 ## ✨ Key Features
 
-- ✅ **Full CRUD** operations across all 9 domain entities
-- ✅ **Spring Data JPA** — zero-boilerplate repository layer with 9 repository interfaces
-- ✅ **Hibernate ORM** — automatic table generation and schema management
-- ✅ **HikariCP** — high-performance connection pooling (auto-configured)
-- ✅ **Lombok** — `@Getter`, `@Setter`, `@Builder`, `@RequiredArgsConstructor` to eliminate boilerplate
-- ✅ **Complex JPA Relationships** — `@OneToMany`, `@ManyToOne`, `@ManyToMany`, `@OneToOne`
-- ✅ **Embedded Tomcat** — no external server deployment needed
-- ✅ **Spring DevTools** — hot reload during development
-- ✅ **Maven Wrapper** — no Maven installation required to build
-- ✅ **RESTful API design** — proper HTTP verbs and resource naming conventions
+- **Stateless JWT auth** — custom `OncePerRequestFilter`, HS256-signed tokens, no server session.
+- **Role-based identity** — single `users` table, `Role` enum, `UserDetails`-backed principal.
+- **BCrypt password hashing** via `DaoAuthenticationProvider`.
+- **Layered architecture** — controllers stay thin; services own the logic and DTO mapping.
+- **DTO pattern** — separate request/response objects per domain keep entities off the wire; `@JsonIgnore` breaks bidirectional serialization loops.
+- **Bean Validation** — `@Valid` with `@NotBlank`, `@Email`, `@Pattern`, `@Positive`, etc.
+- **Business logic** — automatic SKU generation, discount/total calculation, order-number generation, order lifecycle transitions.
 
 ---
 
-## 🧠 What I Learned
+## 🧭 Roadmap & Known Limitations
 
-Building this project gave me hands-on experience with:
+This is an actively evolving learning project. Honest current state:
 
-**Spring Boot & Spring MVC**
-- Setting up a Spring Boot project from scratch with `@SpringBootApplication`
-- Building REST controllers with `@RestController`, `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`
-- Understanding the Spring IoC container and how `@ComponentScan` works
-- Dependency Injection using `@Autowired` and constructor injection
+**Security**
+- [ ] **Enforce authorization.** `SecurityConfiguration` currently `permitAll()`s `/api/**`, so the JWT is created and parsed but not required on business endpoints. Next step: permit only `/api/auth/**` and authenticate everything else.
+- [ ] **Add method-level rules** (`@PreAuthorize` / `hasRole`) so only admins can mutate products/categories and customers can only touch their own cart/orders.
+- [ ] **Derive the current user from the token**, not from request params. Cart and order endpoints take `customerId` / `userId` from the client, which lets one user act as another — resolve it from the `SecurityContext` instead.
+- [ ] **Externalise the JWT secret** and the DB password (both are currently in source).
+- [ ] **Fix token expiry.** `JwtService` sets `1000 * 60 * 24` ms ≈ **24 seconds**; it was likely meant to be minutes/hours.
 
-**JPA & Hibernate ORM**
-- Mapping Java classes to database tables using `@Entity`, `@Table`, `@Column`
-- Implementing all four JPA relationship types: `@OneToOne`, `@OneToMany`, `@ManyToOne`, `@ManyToMany`
-- Understanding `mappedBy` — the owning vs inverse side of a relationship
-- Using `@JoinColumn` and `@JoinTable` for foreign key and junction table configuration
-- `FetchType.LAZY` vs `FetchType.EAGER` and their performance implications
-- Cascade operations with `CascadeType`
+**Correctness**
+- [ ] **Add `@RequestBody` to the register endpoints.** `registerAdmin` / `registerCustomer` are missing it, so JSON bodies won't bind (only `authenticate` has it).
+- [ ] **Review `ProductService.updateProduct`** — it sets `active=false` on every update, which hides the product.
 
-**Spring Data JPA**
-- Extending `JpaRepository<Entity, ID>` to get free CRUD methods
-- Writing custom JPQL queries with `@Query`
-- Method name query derivation (e.g. `findByEmail`, `findByProductId`)
-
-**Database Design**
-- Normalised relational schema with 9 tables
-- Junction tables for many-to-many relationships (`wishlist_products`)
-- Foreign key constraints and referential integrity
-
-**Problem Solving**
-- Debugged and fixed `BeanCreationException` — wrong package scan configuration
-- Fixed Hibernate `MappingException` — missing `@ManyToOne` on entity fields
-- Resolved `AnnotationException` — `mappedBy` pointing to non-existent field
-- Fixed wrong Maven starter artifact IDs
+**Robustness & DX**
+- [ ] Add a `@RestControllerAdvice` global exception handler (currently `RuntimeException`s surface as raw 500s).
+- [ ] Replace `System.out.println` tracing with SLF4J logging.
+- [ ] Add real tests beyond `contextLoads()`.
+- [ ] Add OpenAPI/Swagger docs (`springdoc-openapi`).
+- [ ] Add a `.gitignore` for `/target` and local config.
 
 ---
 
-## 📊 Database Schema
+## 📚 What I Learned
 
-```sql
--- Auto-generated by Hibernate (ddl-auto=update)
-
-CREATE TABLE users (
-    id          BIGINT PRIMARY KEY AUTO_INCREMENT,
-    full_name   VARCHAR(100) NOT NULL,
-    email       VARCHAR(100) UNIQUE NOT NULL,
-    password    VARCHAR(255) NOT NULL,
-    phone       VARCHAR(15),
-    role        ENUM('CUSTOMER','SELLER','ADMIN') DEFAULT 'CUSTOMER',
-    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE categories (
-    id          BIGINT PRIMARY KEY AUTO_INCREMENT,
-    name        VARCHAR(100) NOT NULL,
-    description TEXT
-);
-
-CREATE TABLE products (
-    id              BIGINT PRIMARY KEY AUTO_INCREMENT,
-    name            VARCHAR(200) NOT NULL,
-    description     TEXT,
-    price           DECIMAL(10,2) NOT NULL,
-    stock_quantity  INT DEFAULT 0,
-    category_id     BIGINT,
-    seller_id       BIGINT,
-    FOREIGN KEY (category_id) REFERENCES categories(id),
-    FOREIGN KEY (seller_id) REFERENCES users(id)
-);
-
-CREATE TABLE carts (
-    id      BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id BIGINT UNIQUE,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
-CREATE TABLE cart_items (
-    id          BIGINT PRIMARY KEY AUTO_INCREMENT,
-    cart_id     BIGINT,
-    product_id  BIGINT,
-    quantity    INT NOT NULL,
-    FOREIGN KEY (cart_id) REFERENCES carts(id),
-    FOREIGN KEY (product_id) REFERENCES products(id)
-);
-
-CREATE TABLE orders (
-    id              BIGINT PRIMARY KEY AUTO_INCREMENT,
-    order_number    VARCHAR(50) UNIQUE,
-    user_id         BIGINT,
-    total_amount    DECIMAL(10,2),
-    status          ENUM('PENDING','CONFIRMED','SHIPPED','DELIVERED','CANCELLED'),
-    created_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
-CREATE TABLE order_items (
-    id          BIGINT PRIMARY KEY AUTO_INCREMENT,
-    order_id    BIGINT,
-    product_id  BIGINT,
-    quantity    INT NOT NULL,
-    unit_price  DECIMAL(10,2),
-    FOREIGN KEY (order_id) REFERENCES orders(id),
-    FOREIGN KEY (product_id) REFERENCES products(id)
-);
-
-CREATE TABLE wishlists (
-    id      BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id BIGINT,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
-CREATE TABLE wishlist_products (
-    wishlist_id BIGINT,
-    product_id  BIGINT,
-    PRIMARY KEY (wishlist_id, product_id),
-    FOREIGN KEY (wishlist_id) REFERENCES wishlists(id),
-    FOREIGN KEY (product_id) REFERENCES products(id)
-);
-
-CREATE TABLE reviews (
-    id          BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id     BIGINT,
-    product_id  BIGINT,
-    rating      INT CHECK (rating BETWEEN 1 AND 5),
-    comment     TEXT,
-    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (product_id) REFERENCES products(id)
-);
-```
+- Wiring **Spring Security's filter chain** from scratch — `SecurityFilterChain`, `AuthenticationProvider`, `UserDetailsService`, and a custom JWT filter placed before `UsernamePasswordAuthenticationFilter`.
+- Creating, signing, and verifying **JWTs** with the JJWT library.
+- Modelling a relational domain with **JPA/Hibernate** — one-to-one, one-to-many, and bidirectional mappings, and taming JSON serialization with `@JsonIgnore`.
+- Structuring a real service with the **DTO + layered MVC** pattern.
+- Applying **Bean Validation** declaratively at the API boundary.
 
 ---
 
-## 🔮 Future Enhancements
+## 👤 Author
 
-- [ ] JWT Authentication & Authorization with Spring Security
-- [ ] Razorpay / Stripe payment gateway integration
-- [ ] Redis caching for product listings
-- [ ] Elasticsearch for full-text product search
-- [ ] Email notifications using JavaMailSender
-- [ ] File upload for product images (AWS S3 / Cloudinary)
-- [ ] Swagger / OpenAPI documentation
-- [ ] Docker containerisation + Docker Compose
-- [ ] Unit & integration tests with JUnit 5 + Mockito
-
----
-
-## 👨‍💻 Author
-
-**Souvik Maity**
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/souvik-maity-2a6759333 )
-[![GitHub](https://img.shields.io/badge/GitHub-Follow-181717?style=for-the-badge&logo=github)](https://github.com/sm7602)
-[![Email](https://img.shields.io/badge/Email-Contact-D14836?style=for-the-badge&logo=gmail)](mailto:your-sm2496444l@gmail.com)
-
-**BCA Graduate 2026 · Java Full Stack Developer**
-Trained at DUCAT IT School · Specialising in Spring Boot Backend Development
-
----
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
+**Shubhankar Gupta**
+Self-taught developer · Delhi, India
+GitHub: [@shubhankar360](https://github.com/shubhankar360)
 
 ---
 
 <div align="center">
 
-**⭐ If this project helped you, please give it a star on GitHub!**
-
-*Built with ❤️ using Spring Boot 4 + Java 21 + MySQL*
+⭐ If this project helped or interested you, consider giving it a star.
 
 </div>
