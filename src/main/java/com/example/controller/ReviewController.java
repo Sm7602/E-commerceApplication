@@ -17,7 +17,7 @@ import com.example.service.ReviewService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/reviews")
+@RequestMapping("/api/v1/reviews")
 public class ReviewController {
 
     @Autowired

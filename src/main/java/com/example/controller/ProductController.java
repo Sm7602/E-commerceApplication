@@ -18,7 +18,7 @@ import com.example.service.ProductService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/api/v1/products")
 public class ProductController {
 	
     @Autowired

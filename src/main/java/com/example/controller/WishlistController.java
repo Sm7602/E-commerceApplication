@@ -14,7 +14,7 @@ import com.example.service.WishlistService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/wishlist")
+@RequestMapping("/api/v1/wishlist")
 public class WishlistController {
 
     @Autowired

@@ -17,7 +17,7 @@ import com.example.service.CustomerService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/customer")
+@RequestMapping("/api/v1/customer")
 public class CustomerController {
 	
 	@Autowired

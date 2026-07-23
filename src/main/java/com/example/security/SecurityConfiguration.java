@@ -2,6 +2,7 @@ package com.example.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -23,25 +24,64 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http)throws Exception {
 
         http
-            .csrf(csrf -> csrf.disable())
 
-            .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api/**")
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated())
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(auth -> auth
+                .requestMatchers( "/api/auth/**","/api/v1/**")
+                .permitAll()
+                
+                .requestMatchers(HttpMethod.POST,"/api/orders/**")
+                .hasRole("CUSTOMER")
 
-            .sessionManagement(session ->
-                    session.sessionCreationPolicy(
-                            SessionCreationPolicy.STATELESS))
+                .requestMatchers("/api/v1/cart/**")
+                .hasRole("CUSTOMER")
 
-            .authenticationProvider(authenticationProvider)
+                .requestMatchers("/api/wishlist/**")
+                .hasRole("CUSTOMER")
 
-            .addFilterBefore(
-                    jwtAuthFilter,
-                    UsernamePasswordAuthenticationFilter.class);
+                .requestMatchers(HttpMethod.POST,"/api/products/**")
+                .hasRole("ADMIN")
 
-        return http.build();
+                .requestMatchers(HttpMethod.PUT,"/api/products/**")
+                .hasRole("ADMIN")
+
+                .requestMatchers(HttpMethod.DELETE,"/api/products/**")
+                .hasRole("ADMIN")
+
+                .requestMatchers("/api/categories/**")
+                .hasRole("ADMIN")
+
+
+                .requestMatchers(HttpMethod.GET,"/api/products/**")
+                .authenticated()
+
+                .requestMatchers(HttpMethod.GET,"/api/customer/**")
+                .authenticated()
+                .anyRequest()
+                .authenticated()
+
+        )
+
+
+        .sessionManagement(session ->
+
+                session.sessionCreationPolicy(
+                        SessionCreationPolicy.STATELESS)
+        )
+
+
+        .authenticationProvider(
+                authenticationProvider
+        )
+
+
+        .addFilterBefore(
+                jwtAuthFilter,
+                UsernamePasswordAuthenticationFilter.class
+        );
+
+
+return http.build();
     }
 }
 
